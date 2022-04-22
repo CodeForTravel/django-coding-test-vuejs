@@ -6,7 +6,7 @@ from product import models as models_product
 
 
 class ProductViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = models_product.Product.objects.all().order_by("-created_at")
+    queryset = models_product.Product.objects.all()
     serializer_class = serializers_product.ProductSerializer
     pagination_class = pagination_global.GlobalPagination
     filter_backends = [filters.SearchFilter]

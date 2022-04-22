@@ -131,9 +131,20 @@
     <div class="card-footer">
       <div class="row justify-content-between">
         <div class="col-md-6">
-          <p>Showing 1 to 10 out of 100</p>
+          <p>
+            Showing {{ itemStartIndex }} to {{ itemEndIndex }} out of
+            {{ productCount }}
+          </p>
         </div>
-        <div class="col-md-2"></div>
+        <div class="col-md-6 d-flex justify-content-end mb-2">
+          <b-pagination
+            v-model="currentPage"
+            :per-page="perPage"
+            :total-rows="productCount"
+            @change="fetchProductList"
+          >
+          </b-pagination>
+        </div>
       </div>
     </div>
   </div>
@@ -151,8 +162,10 @@ const apiClient = axios.create({
 export default {
   data() {
     return {
+      itemStartIndex: 0,
+      itemEndIndex: 0,
       currentPage: 1,
-      perPage: 3,
+      perPage: 2,
       search_query: "",
       productList: [],
       productCount: 0,
@@ -195,13 +208,25 @@ export default {
       apiClient
         .get(relativeURL)
         .then((resp) => {
-          console.log(resp);
           this.productList = resp.data.results;
           this.productCount = resp.data.count;
+          this.setItemIndex();
         })
         .catch((err) => {
           console.log(err);
         });
+    },
+
+    setItemIndex() {
+      this.productList.forEach((element, index) => {
+        if (index == 0) {
+          this.itemStartIndex = element.id;
+        }
+
+        if (index == this.productList.length - 1) {
+          this.itemEndIndex = element.id;
+        }
+      });
     },
   },
 };
