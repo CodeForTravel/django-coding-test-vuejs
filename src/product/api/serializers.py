@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from django.db import transaction
-from django.template.defaultfilters import slugify
 
 from product import models as models_product
 
@@ -111,6 +110,9 @@ class ProductSerializer(DynamicFieldsModelSerializer):
     productvariantprices_display = ProductVariantPriceSerializer(
         read_only=True, many=True, source="productvariantprices"
     )
+    productvariants_display = ProductVariantSerializer(
+        read_only=True, many=True, source="productvariants"
+    )
 
     product_variant = serializers.ListField(write_only=True, required=False)
     product_variant_prices = serializers.ListField(write_only=True, required=False)
@@ -125,6 +127,7 @@ class ProductSerializer(DynamicFieldsModelSerializer):
             "description",
             "created_at",
             "productvariantprices_display",
+            "productvariants_display",
             "product_variant",
             "product_variant_prices",
             "product_image",

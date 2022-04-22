@@ -34,6 +34,11 @@ Vue.component(
   require("./components/product/ListProduct.vue").default
 );
 
+Vue.component(
+  "update-product",
+  require("./components/product/UpdateProduct.vue").default
+);
+
 const main = new Vue({
   el: "#app",
 });
