@@ -22,9 +22,10 @@ from django.views.static import serve
 from config import settings
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', include('authentication.urls')),
-    path('product/', include('product.urls'))
+    path("admin/", admin.site.urls),
+    path("", include("authentication.urls")),
+    path("product/", include("product.urls")),
+    path("api/v1/product/", include("product.api.urls")),
 ]
 
 if settings.DEBUG:
