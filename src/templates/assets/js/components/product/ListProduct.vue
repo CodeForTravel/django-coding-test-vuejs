@@ -1,6 +1,6 @@
 <template>
   <div class="card">
-    <form action="" method="get" class="card-header">
+    <div class="card-header">
       <div class="form-row justify-content-between">
         <div class="col-md-2">
           <input
@@ -8,12 +8,17 @@
             name="title"
             placeholder="Product Title"
             class="form-control"
+            v-model="search_query"
           />
         </div>
         <div class="col-md-2">
-          <select name="variant" id="" class="form-control">
-            <option selected disabled>--Select A Variant--</option>
-          </select>
+          <b-form-select
+            v-model="filter_settings.variant"
+            :options="getVariantOptions"
+            size="sm"
+            class=""
+          >
+          </b-form-select>
         </div>
 
         <div class="col-md-3">
@@ -27,6 +32,7 @@
               aria-label="First name"
               placeholder="From"
               class="form-control"
+              v-model="filter_settings.from_price_range"
             />
             <input
               type="text"
@@ -34,6 +40,7 @@
               aria-label="Last name"
               placeholder="To"
               class="form-control"
+              v-model="filter_settings.to_price_range"
             />
           </div>
         </div>
@@ -43,15 +50,29 @@
             name="date"
             placeholder="Date"
             class="form-control"
+            v-model="filter_settings.createdDate"
           />
         </div>
         <div class="col-md-1">
-          <button type="submit" class="btn btn-primary float-right">
+          <b-button
+            v-if="isFiltersApplied"
+            title="Clear filter"
+            class="btn btn-primary float-right ml-2"
+            @click="clearFilter()"
+            variant="danger"
+          >
+            <i class="fa fa-times-circle"></i>
+          </b-button>
+
+          <button
+            @click="fetchProductList(1), (isFiltersApplied = true)"
+            class="btn btn-primary float-right mr-2"
+          >
             <i class="fa fa-search"></i>
           </button>
         </div>
       </div>
-    </form>
+    </div>
 
     <div class="card-body">
       <div class="table-response">
@@ -162,6 +183,7 @@ const apiClient = axios.create({
 export default {
   data() {
     return {
+      isFiltersApplied: false,
       itemStartIndex: 0,
       itemEndIndex: 0,
       currentPage: 1,
@@ -169,7 +191,11 @@ export default {
       search_query: "",
       productList: [],
       productCount: 0,
+
+      variantList: [],
+
       productApiUrl: "api/v1/product/products/",
+      variantApiUrl: "api/v1/product/variants/",
 
       filter_settings: {
         variant: "",
@@ -181,13 +207,22 @@ export default {
   },
   created() {
     this.fetchProductList(1);
+    this.fetchVarintList();
+  },
+  computed: {
+    getVariantOptions() {
+      let options = [];
+      this.variantList.forEach((element) => {
+        options.push({ value: element.id, text: element.title });
+      });
+
+      return options;
+    },
   },
   methods: {
     fetchProductList(currentPage) {
       let relativeURL =
         this.productApiUrl + `?page_size=${this.perPage}&page=${currentPage}`;
-
-      console.log(relativeURL);
 
       if (this.search_query) {
         relativeURL += `&search=${this.search_query}`;
@@ -215,6 +250,31 @@ export default {
         .catch((err) => {
           console.log(err);
         });
+    },
+
+    fetchVarintList() {
+      let relativeURL = this.variantApiUrl + `?page_size=10000&page=1`;
+      apiClient
+        .get(relativeURL)
+        .then((resp) => {
+          this.variantList = resp.data.results;
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
+
+    clearFilter() {
+      this.filter_settings = {
+        variant: "",
+        from_price_range: "",
+        to_price_range: "",
+        createdDate: "",
+      };
+      this.search_query = "";
+
+      this.fetchProductList(1);
+      this.isFiltersApplied = false;
     },
 
     setItemIndex() {

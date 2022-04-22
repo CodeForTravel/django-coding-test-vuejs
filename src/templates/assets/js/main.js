@@ -2,6 +2,8 @@ window.$ = window.jQuery = require("jquery");
 import "startbootstrap-sb-admin-2/js/sb-admin-2";
 import Vue from "vue";
 import { BootstrapVue, IconsPlugin } from "bootstrap-vue";
+import Select2 from "v-select2-component";
+
 // Import Bootstrap and BootstrapVue CSS files (order is important)
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap-vue/dist/bootstrap-vue.css";
@@ -13,6 +15,7 @@ window.Vue = Vue;
 Vue.use(BootstrapVue);
 // Optionally install the BootstrapVue icon components plugin
 Vue.use(IconsPlugin);
+Vue.component("Select2", Select2);
 
 Vue.component(
   "create-product",
