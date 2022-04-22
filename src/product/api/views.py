@@ -9,7 +9,10 @@ class ProductViewSet(viewsets.ModelViewSet):
     queryset = models_product.Product.objects.all()
     serializer_class = serializers_product.ProductSerializer
     pagination_class = pagination_global.GlobalPagination
-    filter_backends = [filters.SearchFilter]
+    filter_backends = [
+        filters.SearchFilter,
+        filters_product.SubscriptionGroupMembersFilterBackend,
+    ]
     search_fields = [
         "title",
         "description",
@@ -23,5 +26,16 @@ class VariantViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = [filters.SearchFilter]
     search_fields = [
         "title",
+        "description",
+    ]
+
+
+class ProductVariantViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = models_product.ProductVariant.objects.all()
+    serializer_class = serializers_product.ProductVariantSerializer
+    pagination_class = pagination_global.GlobalPagination
+    filter_backends = [filters.SearchFilter]
+    search_fields = [
+        "variant_title",
         "description",
     ]

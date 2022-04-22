@@ -15,6 +15,7 @@
           <b-form-select
             v-model="filter_settings.variant"
             :options="getVariantOptions"
+            placeholder="Select variant"
             size="sm"
             class=""
           >
@@ -198,7 +199,7 @@ export default {
       variantApiUrl: "api/v1/product/variants/",
 
       filter_settings: {
-        variant: "",
+        variant: null,
         from_price_range: "",
         to_price_range: "",
         createdDate: "",
@@ -211,15 +212,22 @@ export default {
   },
   computed: {
     getVariantOptions() {
-      let options = [];
+      let options = [{ value: null, text: "Select Varinat", disabled: true }];
       this.variantList.forEach((element) => {
-        options.push({ value: element.id, text: element.title });
+        options.push({
+          value: element.variant_title,
+          text: element.variant_title,
+        });
       });
 
       return options;
     },
   },
   methods: {
+    getUniqueArray(arr, key) {
+      return [...new Map(arr.map((item) => [item[key], item])).values()];
+    },
+
     fetchProductList(currentPage) {
       let relativeURL =
         this.productApiUrl + `?page_size=${this.perPage}&page=${currentPage}`;
@@ -257,7 +265,10 @@ export default {
       apiClient
         .get(relativeURL)
         .then((resp) => {
-          this.variantList = resp.data.results;
+          this.variantList = this.getUniqueArray(
+            resp.data.results,
+            "variant_title"
+          );
         })
         .catch((err) => {
           console.log(err);
@@ -266,7 +277,7 @@ export default {
 
     clearFilter() {
       this.filter_settings = {
-        variant: "",
+        variant: null,
         from_price_range: "",
         to_price_range: "",
         createdDate: "",

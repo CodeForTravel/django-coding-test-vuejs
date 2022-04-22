@@ -4,7 +4,9 @@ from product.api import views as views_product
 
 simple_router = routers.SimpleRouter(trailing_slash=True)
 simple_router.register(r"products", views_product.ProductViewSet, basename="product")
-simple_router.register(r"variants", views_product.VariantViewSet, basename="variant")
+simple_router.register(
+    r"variants", views_product.ProductVariantViewSet, basename="variant"
+)
 
 
 urlpatterns = [
