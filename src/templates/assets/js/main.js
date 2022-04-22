@@ -3,6 +3,7 @@ import "startbootstrap-sb-admin-2/js/sb-admin-2";
 import Vue from "vue";
 import { BootstrapVue, IconsPlugin } from "bootstrap-vue";
 import Select2 from "v-select2-component";
+import Toasted from "vue-toasted";
 
 // Import Bootstrap and BootstrapVue CSS files (order is important)
 import "bootstrap/dist/css/bootstrap.css";
@@ -11,6 +12,13 @@ import "../scss/main.scss";
 
 window.Vue = Vue;
 
+Vue.use(Toasted, {
+  class: "rounded",
+  position: "bottom-right",
+  fitToScreen: true,
+  theme: "toasted-primary",
+  duration: 4000,
+});
 // Make BootstrapVue available throughout your project
 Vue.use(BootstrapVue);
 // Optionally install the BootstrapVue icon components plugin
