@@ -141,7 +141,9 @@
               </td>
               <td>
                 <div class="btn-group btn-group-sm">
-                  <a href="" class="btn btn-success">Edit</a>
+                  <a @click="sendToEditPage(product)" class="btn btn-success">
+                    Edit
+                  </a>
                 </div>
               </td>
             </tr>
@@ -224,6 +226,12 @@ export default {
     },
   },
   methods: {
+    sendToEditPage(product) {
+      let update_urls_path =
+        window.location.origin + `/product/update/${product.id}`;
+      window.location = update_urls_path;
+    },
+
     getUniqueArray(arr, key) {
       return [...new Map(arr.map((item) => [item[key], item])).values()];
     },
