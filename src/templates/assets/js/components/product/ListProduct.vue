@@ -196,7 +196,7 @@ export default {
       variantList: [],
 
       productApiUrl: "api/v1/product/products/",
-      variantApiUrl: "api/v1/product/variants/",
+      productVariantApiUrl: "api/v1/product/product-variants/",
 
       filter_settings: {
         variant: null,
@@ -261,7 +261,7 @@ export default {
     },
 
     fetchVarintList() {
-      let relativeURL = this.variantApiUrl + `?page_size=10000&page=1`;
+      let relativeURL = this.productVariantApiUrl + `?page_size=10000&page=1`;
       apiClient
         .get(relativeURL)
         .then((resp) => {
