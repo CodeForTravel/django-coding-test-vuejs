@@ -22,7 +22,9 @@ class Product(TimeStampMixin):
 
 
 class ProductImage(TimeStampMixin):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, related_name="productimages"
+    )
     file_path = models.URLField()
 
     def __str__(self):
