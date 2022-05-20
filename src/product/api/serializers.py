@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.db import transaction
-
+from django.db.models import Q
 from product import models as models_product
 
 
@@ -56,10 +56,18 @@ class ProductImageSerializer(DynamicFieldsModelSerializer):
 
 class ProductVariantSerializer(DynamicFieldsModelSerializer):
     created_at = serializers.SerializerMethodField()
+    variant_root_title = serializers.CharField(source="variant.title")
 
     class Meta:
         model = models_product.ProductVariant
-        fields = ["id", "variant_title", "variant", "product", "created_at"]
+        fields = [
+            "id",
+            "variant_title",
+            "variant",
+            "variant_root_title",
+            "product",
+            "created_at",
+        ]
 
     def get_created_at(self, obj):
         created_at = obj.created_at
@@ -117,6 +125,7 @@ class ProductSerializer(DynamicFieldsModelSerializer):
     product_variant = serializers.ListField(write_only=True, required=False)
     product_variant_prices = serializers.ListField(write_only=True, required=False)
     product_image = serializers.ListField(write_only=True, required=False)
+    productimages = ProductImageSerializer(read_only=True, many=True)
 
     class Meta:
         model = models_product.Product
@@ -131,6 +140,7 @@ class ProductSerializer(DynamicFieldsModelSerializer):
             "product_variant",
             "product_variant_prices",
             "product_image",
+            "productimages",
         ]
 
     def get_created_at(self, obj):
@@ -193,3 +203,69 @@ class ProductSerializer(DynamicFieldsModelSerializer):
             )
 
         return product
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+
+        product_variants = validated_data.pop("product_variant")
+        product_variant_prices = validated_data.pop("product_variant_prices")
+        product_image = validated_data.pop("product_image")
+
+        instance.title = validated_data.get("title")
+        instance.description = validated_data.get("description")
+        instance.save()
+
+        # creating/updating product varinat
+        for product_variant in product_variants:
+            tags = product_variant.get("tags")
+            option = int(product_variant.get("option"))
+            varint = models_product.Variant.objects.get(id=option)
+            for tag in tags:
+                (
+                    product_variant_instance,
+                    created,
+                ) = models_product.ProductVariant.objects.get_or_create(
+                    variant_title=tag, variant=varint, product=instance.id
+                )
+
+        models_product.ProductVariantPrice.objects.filter(product=instance).delete()
+        # creating product price varinat
+        for product_variant_price in product_variant_prices:
+            title = product_variant_price.get("title")
+            price = float(product_variant_price.get("price"))
+            stock = float(product_variant_price.get("stock"))
+            product_price_variant = models_product.ProductVariantPrice.objects.create(
+                price=price, stock=stock, product=instance
+            )
+            if title:
+                title_list = title.split("/")
+                for price_title in title_list:
+                    if price_title:
+                        product_variant_instance = (
+                            models_product.ProductVariant.objects.get(
+                                variant_title=price_title, product=instance
+                            )
+                        )
+                    if product_variant_instance:
+                        if product_variant_instance.variant.id == 1:
+                            product_price_variant.product_variant_one = (
+                                product_variant_instance
+                            )
+                        elif product_variant_instance.variant.id == 2:
+                            product_price_variant.product_variant_two = (
+                                product_variant_instance
+                            )
+                        elif product_variant_instance.variant.id == 3:
+                            product_price_variant.product_variant_three = (
+                                product_variant_instance
+                            )
+                        product_price_variant.save()
+
+        # creating image
+        if product_image:
+            file_path = product_image.get("file_path")
+            models_product.ProductImage.objects.create(
+                file_path=file_path, product=instance.id
+            )
+
+        return instance
