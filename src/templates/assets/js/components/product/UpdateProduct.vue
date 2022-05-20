@@ -226,6 +226,32 @@ export default {
           console.log(err);
         });
     },
+
+    setProductPriceVarinat() {
+      let productPriceVariants = JSON.parse(
+        JSON.stringify(this.selectedProduct.productvariantprices_display)
+      );
+      productPriceVariants.forEach((element) => {
+        console.log(element);
+        let price_title = "";
+        if (element.product_variant_one_display.variant_title) {
+          price_title = `${price_title}/${element.product_variant_one_display.variant_title}`;
+        }
+        if (element.product_variant_two_display.variant_title) {
+          price_title = `${price_title}/${element.product_variant_two_display.variant_title}`;
+        }
+        if (element.product_variant_three_display.variant_title) {
+          price_title = `${price_title}/${element.product_variant_three_display.variant_title}`;
+        }
+
+        this.product_variant_prices.push({
+          title: price_title,
+          price: element.price,
+          stock: element.stock,
+        });
+      });
+    },
+
     setProductData() {
       if (this.selectedProduct) {
         this.product_name = this.selectedProduct.title;
@@ -233,7 +259,30 @@ export default {
         this.description = this.selectedProduct.description;
 
         this.setProductVarinat();
+        this.setProductPriceVarinat();
       }
+    },
+
+    setProductSize(productvariant) {
+      this.product_variant.forEach((element) => {
+        if (element.option == this.variants[0].id) {
+          element.tags.push(productvariant.variant_title);
+        }
+      });
+    },
+    setProductColor(productvariant) {
+      this.product_variant.forEach((element) => {
+        if (element.option == this.variants[1].id) {
+          element.tags.push(productvariant.variant_title);
+        }
+      });
+    },
+    setProductStyle(productvariant) {
+      this.product_variant.forEach((element) => {
+        if (element.option == this.variants[2].id) {
+          element.tags.push(productvariant.variant_title);
+        }
+      });
     },
 
     setProductVarinat() {
@@ -241,45 +290,47 @@ export default {
         JSON.stringify(this.selectedProduct.productvariants_display)
       );
 
-      console.log(productVariants);
-
       if (productVariants) {
         productVariants.forEach((element) => {
-          if (this.variants[0].id == element.variant) {
-            if (!this.checkIsVariantExists(element)) {
-              this.product_variant.push({
-                option: this.variants[element.variant].id,
-              });
-            }
+          let is_variant_exist = this.checkIsVariantExists(element);
 
-            this.product_variant.push({
-              option: this.variants[element.variant].id,
-            });
+          if (this.variants[0].id == element.variant) {
+            if (!is_variant_exist) {
+              this.product_variant.push({
+                option: this.variants[element.variant].id,
+                tags: [],
+              });
+            }
+            this.setProductSize(element);
           } else if (this.variants[1].id == element.variant) {
-            if (!this.checkIsVariantExists(element)) {
+            if (!is_variant_exist) {
               this.product_variant.push({
-                option: this.variants[element.variant].id,
+                option: this.variants[1].id,
+                tags: [],
               });
             }
+            this.setProductColor(element);
           } else if (this.variants[2].id == element.variant) {
-            if (!this.checkIsVariantExists(element)) {
+            if (!is_variant_exist) {
               this.product_variant.push({
-                option: this.variants[element.variant].id,
+                option: this.variants[2].id,
+                tags: [],
               });
             }
+            this.setProductStyle(element);
           }
         });
       }
     },
 
     checkIsVariantExists(p_variant) {
-      let variant_exists = false;
+      let isFound = false;
       this.product_variant.forEach((element) => {
         if (element.option == p_variant.variant) {
-          variant_exists = true;
+          isFound = true;
         }
       });
-      return variant_exists;
+      return isFound;
     },
 
     // it will push a new object into product variant
